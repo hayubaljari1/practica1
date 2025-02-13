@@ -2,11 +2,7 @@ name: Security Scan
 
 on:
   push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
 
 jobs:
   security:
@@ -16,22 +12,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          php-version: '8.3'
+          python-version: '3.9'
 
-      - name: Install Composer
-        run: |
-          curl -sS https://getcomposer.org/installer | php
-          sudo mv composer.phar /usr/local/bin/composer
-
-      - name: Install PHP dependencies
-        run: |
-          composer install --no-dev --optimize-autoloader
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
       - name: Run Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@v0.0.26
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           ignore-unfixed: true
@@ -39,7 +29,7 @@ jobs:
           output: 'trivy-results.txt'
 
       - name: Upload Trivy results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-results
           path: trivy-results.txt
